@@ -1,6 +1,6 @@
-import { hashPassword } from "../../utils/passwordHasher.js";
+import { hashPassword, verifyPassword } from "../../utils/passwordHasher.js";
 import UserRepo from "./user.repo.js";
-
+import jwt from "jsonwebtoken";
 export default class UserController {
   constructor() {
     this.repo = new UserRepo();
@@ -34,13 +34,47 @@ export default class UserController {
         return res.status(400).json(resp);
       }
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         success: false,
         error:
           error.message ||
           "Something went wrong with the server! Please try again later",
       });
+    }
+  };
+
+  userSignIn = async (req, res) => {
+    const { email, password } = req.body;
+
+    const user = await this.repo.findUserByEmail(email);
+    console.log(user);
+    if (user.success) {
+      if (user.user === null) {
+        return res
+          .status(400)
+          .json({ success: false, msg: "Invalid credentials" });
+      } else {
+        const verifyPass = await verifyPassword(password, user.user.password);
+        if (!verifyPass) {
+          return res
+            .status(400)
+            .json({ success: false, msg: "Invalid credentials" });
+        } else {
+          const token = jwt.sign(
+            { userId: user._id, user },
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" }
+          );
+          res
+            .cookie("jwtToken", token, {
+              maxAge: 1 * 60 * 60 * 1000,
+              httpOnly: true,
+            })
+            .json({ success: true, msg: "user login successful", token });
+        }
+      }
+    } else {
+      return res.status(400).json(user);
     }
   };
 }

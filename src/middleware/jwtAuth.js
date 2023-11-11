@@ -10,6 +10,7 @@ const auth = async (req, res) => {
         .json({ success: false, msg: "unauthorized! login to continue" });
     else {
       req.user = data.user;
+      req.userId = data.userId;
       next();
     }
   });
