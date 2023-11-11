@@ -44,12 +44,15 @@ export default class UserController {
 
   userSignIn = async (req, res) => {
     const { email, password } = req.body;
+    let token = "";
 
     const resp = await this.repo.signInUser(email, password);
 
     if (resp.success) {
-      const token = jwt.sign(
-        { userId: resp.user._id, user: resp.user },
+      token = jwt.sign(
+        {
+          userId: resp.user._id,
+        },
         process.env.JWT_SECRET
       );
       console.log(token);

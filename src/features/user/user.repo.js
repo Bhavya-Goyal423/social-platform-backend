@@ -27,7 +27,7 @@ export default class UserRepo {
 
   updateToken = async (email, token) => {
     try {
-      const updateToken = await userModel.findOneAndUpdate(
+      const updateUser = await userModel.findOneAndUpdate(
         { email },
         { $push: { login: token } },
         { new: true }
