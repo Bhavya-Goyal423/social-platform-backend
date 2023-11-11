@@ -28,7 +28,6 @@ export default class UserController {
         return res.status(201).json({
           success: true,
           msg: "User created successfully",
-          resp: resp.data,
         });
       } else {
         return res.status(400).json(resp);
@@ -46,35 +45,36 @@ export default class UserController {
   userSignIn = async (req, res) => {
     const { email, password } = req.body;
 
-    const user = await this.repo.findUserByEmail(email);
-    console.log(user);
-    if (user.success) {
-      if (user.user === null) {
-        return res
-          .status(400)
-          .json({ success: false, msg: "Invalid credentials" });
-      } else {
-        const verifyPass = await verifyPassword(password, user.user.password);
-        if (!verifyPass) {
-          return res
-            .status(400)
-            .json({ success: false, msg: "Invalid credentials" });
-        } else {
-          const token = jwt.sign(
-            { userId: user._id, user },
-            process.env.JWT_SECRET,
-            { expiresIn: "1h" }
-          );
-          res
-            .cookie("jwtToken", token, {
-              maxAge: 1 * 60 * 60 * 1000,
-              httpOnly: true,
-            })
-            .json({ success: true, msg: "user login successful", token });
-        }
-      }
+    const resp = await this.repo.signInUser(email, password);
+
+    if (resp.success) {
+      const token = jwt.sign(
+        { userId: resp.user._id, user: resp.user },
+        process.env.JWT_SECRET
+      );
+      console.log(token);
+
+      await this.repo.updateToken(email, token);
+
+      res
+        .cookie("jwtToken", token, {
+          maxAge: 30 * 24 * 60 * 60 * 1000,
+          httpOnly: true,
+          overwrite: true,
+        })
+        .json({ success: true, msg: "user login successful", token });
     } else {
-      return res.status(400).json(user);
+      res.status(400).json(resp);
     }
+  };
+
+  userLogOut = async (req, res) => {
+    res.clearCookie("jwtToken");
+
+    const resp = await this.repo.logOutUser(req.userId, req.token);
+
+    if (resp.success) {
+      return res.status(200).json(resp);
+    } else return res.status(400).json(resp);
   };
 }
