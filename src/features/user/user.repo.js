@@ -50,4 +50,15 @@ export default class UserRepo {
       return { success: false, error: error.message };
     }
   };
+  logOutAllUser = async (userId) => {
+    try {
+      const account = await userModel.findOne({ _id: userId });
+      account.login = [];
+      await account.save();
+      return { success: true, msg: "Logout successfull" };
+    } catch (error) {
+      console.log(error);
+      return { success: false, error: error.message };
+    }
+  };
 }

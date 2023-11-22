@@ -8,5 +8,6 @@ const userController = new UserController();
 userRouter.route("/signup").post(userController.userSignUp);
 userRouter.route("/signin").post(userController.userSignIn);
 userRouter.route("/logout").get(auth, userController.userLogOut);
+userRouter.route("/logout-all-devices").get(auth, userController.userLogOutAll);
 
 export default userRouter;

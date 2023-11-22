@@ -55,7 +55,6 @@ export default class UserController {
         },
         process.env.JWT_SECRET
       );
-      console.log(token);
 
       await this.repo.updateToken(email, token);
 
@@ -75,6 +74,16 @@ export default class UserController {
     res.clearCookie("jwtToken");
 
     const resp = await this.repo.logOutUser(req.userId, req.token);
+
+    if (resp.success) {
+      return res.status(200).json(resp);
+    } else return res.status(400).json(resp);
+  };
+
+  userLogOutAll = async (req, res) => {
+    res.clearCookie("jwtToken");
+
+    const resp = await this.repo.logOutAllUser(req.userId);
 
     if (resp.success) {
       return res.status(200).json(resp);
