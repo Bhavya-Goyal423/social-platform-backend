@@ -64,13 +64,19 @@ export default class UserController {
           httpOnly: true,
           overwrite: true,
         })
-        .json({ success: true, msg: "user login successful", token });
+        .json({
+          success: true,
+          msg: "user login successful",
+          token,
+          id: resp.user.id,
+        });
     } else {
       res.status(400).json(resp);
     }
   };
 
   userLogOut = async (req, res) => {
+    console.log(req.userId);
     res.clearCookie("jwtToken");
 
     const resp = await this.repo.logOutUser(req.userId, req.token);
@@ -87,6 +93,31 @@ export default class UserController {
 
     if (resp.success) {
       return res.status(200).json(resp);
+    } else return res.status(400).json(resp);
+  };
+
+  getDetails = async (req, res) => {
+    const userId = req.params.userId;
+
+    const resp = await this.repo.getUser(userId);
+
+    if (resp.success) {
+      const { name, gender, posts } = resp.user;
+      return res
+        .status(200)
+        .json({ success: true, user: { name, gender, posts } });
+    } else return res.status(400).json(resp);
+  };
+
+  getAllDetails = async (req, res) => {
+    const resp = await this.repo.getUser(req.userId);
+
+    if (resp.success) {
+      const { name, gender, posts, friends, pendingReq } = resp.user;
+      return res.status(200).json({
+        success: true,
+        user: { name, gender, posts, friends, pendingReq },
+      });
     } else return res.status(400).json(resp);
   };
 }

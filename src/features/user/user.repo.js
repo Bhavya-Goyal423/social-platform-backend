@@ -61,4 +61,18 @@ export default class UserRepo {
       return { success: false, error: error.message };
     }
   };
+
+  getUser = async (userId) => {
+    try {
+      const user = await userModel.findOne({ _id: userId });
+      if (!user) return { success: false, error: "No user found" };
+      else
+        return {
+          success: true,
+          user,
+        };
+    } catch (error) {
+      return { success: false, error: "No user found" };
+    }
+  };
 }
