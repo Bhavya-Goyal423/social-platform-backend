@@ -4,8 +4,9 @@ const PostSchema = new mongoose.Schema({
   imageUrl: {
     data: Buffer,
     contentType: String,
+    name: String,
   },
-  title: {
+  caption: {
     type: String,
   },
   userId: {
