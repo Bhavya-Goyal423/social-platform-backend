@@ -75,4 +75,20 @@ export default class UserRepo {
       return { success: false, error: "No user found" };
     }
   };
+
+  updateUser = async (userId, query) => {
+    try {
+      const user = await userModel.findOneAndUpdate({ _id: userId }, query, {
+        new: true,
+      });
+      if (!user) return { success: false, msg: "No user found" };
+      const { name, gender, posts, friends, pendingReq } = user;
+      return {
+        success: true,
+        user: { name, gender, posts, friends, pendingReq },
+      };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
 }

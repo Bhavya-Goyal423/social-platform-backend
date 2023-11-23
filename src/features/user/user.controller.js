@@ -120,4 +120,26 @@ export default class UserController {
       });
     } else return res.status(400).json(resp);
   };
+
+  updateDetails = async (req, res) => {
+    if (req.userId !== req.params.userId)
+      return res
+        .json(401)
+        .json({ success: false, msg: "You can only update yourself" });
+
+    const { name, gender } = req.body;
+
+    const resp = await this.repo.updateUser(req.params.userId, {
+      name,
+      gender,
+    });
+
+    if (resp.success) {
+      const { name, gender, posts, friends, pendingReq } = resp.user;
+      return res.status(200).json({
+        success: true,
+        user: { name, gender, posts, friends, pendingReq },
+      });
+    } else return res.status(400).json(resp);
+  };
 }
