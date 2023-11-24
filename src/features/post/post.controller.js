@@ -86,4 +86,32 @@ export default class PostController {
       return res.status(400).json({ success: false, error: error.message });
     }
   };
+
+  updatePost = async (req, res) => {
+    try {
+      const { caption } = req.body;
+      const {
+        buffer = undefined,
+        mimetype = undefined,
+        originalname = undefined,
+      } = req.file || {};
+      const userId = req.userId;
+
+      const resp = await this.repo.updatePost(
+        caption,
+        buffer,
+        mimetype,
+        originalname,
+        userId,
+        req.params.postId
+      );
+
+      if (resp.success) {
+        return res.status(200).json(resp);
+      } else return res.status(400).json(resp);
+    } catch (error) {
+      console.log(error);
+      return res.status(400).json({ success: false, error: error.message });
+    }
+  };
 }

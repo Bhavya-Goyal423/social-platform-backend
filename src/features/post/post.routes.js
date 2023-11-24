@@ -16,6 +16,7 @@ postRouter.route("/all").get(postController.getAllPost);
 postRouter
   .route("/:postId")
   .get(postController.getPostById)
-  .delete(auth, postController.deletePost);
+  .delete(auth, postController.deletePost)
+  .put(auth, upload.single("imageUrl"), postController.updatePost);
 
 export default postRouter;

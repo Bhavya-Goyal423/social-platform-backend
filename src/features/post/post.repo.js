@@ -77,4 +77,40 @@ export default class PostRepo {
       return { success: false, error: error.message };
     }
   };
+
+  updatePost = async (caption, data, contentType, name, userId, postId) => {
+    try {
+      const post = await postModel.findById(postId);
+      if (!post) return { success: false, msg: "Post not found" };
+
+      if (post.userId.toString() === userId.toString()) {
+        const updateFields = {};
+
+        if (
+          data !== undefined &&
+          contentType !== undefined &&
+          name !== undefined
+        ) {
+          updateFields.imageUrl = { data, contentType, name };
+        }
+
+        if (caption !== undefined) {
+          updateFields.caption = caption;
+        }
+
+        const updatedPost = await postModel
+          .findOneAndUpdate({ _id: postId }, updateFields, { new: true })
+          .select("-imageUrl.data -imageUrl.contentType -__v ");
+
+        return { success: true, msg: "Post updated", post: updatedPost };
+      } else {
+        return {
+          success: false,
+          msg: "You can only update posts created by you",
+        };
+      }
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
 }
