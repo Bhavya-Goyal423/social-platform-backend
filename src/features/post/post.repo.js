@@ -10,13 +10,17 @@ export default class PostRepo {
       });
       return { success: true, post: newPost };
     } catch (error) {
+      console.log(error);
       return { success: false, error: error.message };
     }
   };
 
   getPostById = async (postId) => {
     try {
-      const post = await postModel.findById(postId);
+      const post = await postModel
+        .findById(postId)
+        .populate("comments", "-__v")
+        .populate("likes", "-__v");
       if (!post) return { success: false, msg: "Post not found" };
       const {
         imageUrl: { name },
@@ -26,6 +30,7 @@ export default class PostRepo {
       } = post;
       return { status: true, post: { name, caption, likes, comments } };
     } catch (error) {
+      console.log(error);
       return { success: false, error: error.message };
     }
   };
@@ -36,12 +41,15 @@ export default class PostRepo {
         .find({
           userId: new mongoose.Types.ObjectId(userId),
         })
+        .populate("comments", "-__v")
+        .populate("likes", "-__v")
         .select("-imageUrl.data -imageUrl.contentType -__v ");
       if (!post) return { success: false, msg: "Post not found" };
       console.log(post);
 
       return { status: true, post };
     } catch (error) {
+      console.log(error);
       return { success: false, error: error.message };
     }
   };
@@ -49,6 +57,8 @@ export default class PostRepo {
     try {
       const post = await postModel
         .find({})
+        .populate("comments", "-__v")
+        .populate("likes", "-__v")
         .select("-imageUrl.data -imageUrl.contentType -__v ");
       if (!post) return { success: false, msg: "Post not found" };
       return { status: true, post };
@@ -74,6 +84,7 @@ export default class PostRepo {
           msg: "You can only delete post created by you",
         };
     } catch (error) {
+      console.log(error);
       return { success: false, error: error.message };
     }
   };
@@ -100,6 +111,8 @@ export default class PostRepo {
 
         const updatedPost = await postModel
           .findOneAndUpdate({ _id: postId }, updateFields, { new: true })
+          .populate("comments", "-__v")
+          .populate("likes", "-__v")
           .select("-imageUrl.data -imageUrl.contentType -__v ");
 
         return { success: true, msg: "Post updated", post: updatedPost };
@@ -110,6 +123,7 @@ export default class PostRepo {
         };
       }
     } catch (error) {
+      console.log(error);
       return { success: false, error: error.message };
     }
   };
