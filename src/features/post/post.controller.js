@@ -19,7 +19,6 @@ export default class PostController {
       );
 
       if (resp.success) {
-        console.log("in");
         const {
           post: {
             imageUrl: { name },
@@ -36,7 +35,55 @@ export default class PostController {
       }
       return res.status(400).json(resp);
     } catch (error) {
-      return res.json({ success: false, error: error.message });
+      return res.status(400).json({ success: false, error: error.message });
+    }
+  };
+
+  getPostById = async (req, res) => {
+    try {
+      const resp = await this.repo.getPostById(req.params.postId);
+
+      if (resp.success) {
+        return res.status(200).json(resp);
+      } else return res.status(400).json(resp);
+    } catch (error) {
+      return res.status(400).json({ success: false, error: error.message });
+    }
+  };
+
+  getPostByUser = async (req, res) => {
+    try {
+      const resp = await this.repo.getPostByUser(req.userId);
+
+      if (resp.success) {
+        return res.status(200).json(resp);
+      } else return res.status(400).json(resp);
+    } catch (error) {
+      return res.status(400).json({ success: false, error: error.message });
+    }
+  };
+
+  getAllPost = async (req, res) => {
+    try {
+      const resp = await this.repo.getAllPost();
+
+      if (resp.success) {
+        return res.status(200).json(resp);
+      } else return res.status(400).json(resp);
+    } catch (error) {
+      return res.status(400).json({ success: false, error: error.message });
+    }
+  };
+
+  deletePost = async (req, res) => {
+    try {
+      const resp = await this.repo.deletePost(req.params.postId, req.userId);
+
+      if (resp.success) {
+        return res.status(200).json(resp);
+      } else return res.status(400).json(resp);
+    } catch (error) {
+      return res.status(400).json({ success: false, error: error.message });
     }
   };
 }
